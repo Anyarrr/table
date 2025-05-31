@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hook";
 import {
+  changePage,
   editTodo,
   removeTodo,
   sotrTodo,
@@ -9,7 +10,9 @@ import {
 import {
   Button,
   Grid,
+  Pagination,
   Paper,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -20,10 +23,18 @@ import SwapVertIcon from "@mui/icons-material/SwapVert";
 import ClearIcon from "@mui/icons-material/Clear";
 
 export const ToDoTable = () => {
-  const todos = useAppSelector((state) => state.todo.todos);
+  const { todos, currentPage, itemsPage } = useAppSelector((state) => state.todo);
   const [editId, setEditId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const dispatch = useAppDispatch();
+
+  const indexOfLastItem = currentPage * itemsPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPage;
+  const currentTodos = todos.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handlePage = (event: React.ChangeEvent<unknown>, value: number) => {
+    dispatch(changePage(value));
+  };
 
   const handleChecked = (id: string) => {
     dispatch(toggleTodo({ id }));
@@ -47,7 +58,10 @@ export const ToDoTable = () => {
   return (
     <Grid sx={{ display: "flex", justifyContent: "center" }}>
       <Paper sx={{ width: "80%", overflow: "hidden" }}>
-        <Table sx={{ borderCollapse: "collapse", backgroundColor: '#f5f5f5' }} border={1}>
+        <Table
+          sx={{ borderCollapse: "collapse", backgroundColor: "#f5f5f5" }}
+          border={1}
+        >
           <TableHead>
             <TableRow>
               <TableCell sx={{ textAlign: "center", fontWeight: "bold" }}>
@@ -72,7 +86,7 @@ export const ToDoTable = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {todos.map((item) => (
+            {currentTodos.map((item) => (
               <TableRow key={item.id}>
                 <TableCell sx={{ textAlign: "center" }}>
                   <input
@@ -111,6 +125,14 @@ export const ToDoTable = () => {
             ))}
           </TableBody>
         </Table>
+        <Stack spacing={2} sx={{ alignItems: "center", marginTop: 2 }}>
+          <Pagination
+            count={Math.ceil(todos.length / itemsPage)}//2
+            page={currentPage}//2
+            onChange={handlePage}
+            color="primary"
+          />  
+        </Stack>
       </Paper>
     </Grid>
   );

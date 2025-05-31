@@ -11,12 +11,16 @@ export interface Todo {
   todos: TodoState[];
   originalTodos: TodoState[];
   isSorted: boolean;
+  currentPage: number;
+  itemsPage: number; 
 }
 
 const initialState: Todo = {
   todos: [],
   originalTodos: [],
   isSorted: false,
+  currentPage: 1,
+  itemsPage: 4,
 };
 
 const now = new Date();
@@ -39,6 +43,8 @@ const todoSlice = createSlice({
       };
       state.todos.push(newTodo);
       state.originalTodos = state.todos;
+
+      state.currentPage = Math.ceil(state.todos.length / state.itemsPage);
     },
     toggleTodo: (state, action) => {
       const checked = state.todos.find((item) => item.id === action.payload.id);
@@ -83,15 +89,11 @@ const todoSlice = createSlice({
         );
       }
     },
+    changePage: (state, action) => {
+      state.currentPage = action.payload;
+    }
   },
 });
 
-export const {
-  addTodo,
-  toggleTodo,
-  editTodo,
-  removeTodo,
-  sotrTodo,
-  filteredTodo,
-} = todoSlice.actions;
+export const {addTodo,toggleTodo,editTodo,removeTodo,sotrTodo,filteredTodo, changePage} = todoSlice.actions;
 export default todoSlice.reducer;
